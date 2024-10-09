@@ -92,6 +92,7 @@ export const Login = async (req, res) => {
     // Store refresh token in the database
     await Users.update({ refresh_token: refreshToken }, { where: { id: userId } });
 
+    const v = "dsdsfs"
     // Set refresh token as a cookie
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
