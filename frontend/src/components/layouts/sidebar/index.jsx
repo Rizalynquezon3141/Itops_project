@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useRef } from "react";
 import SubMenu from "./SubMenu"; // SubMenu component for expandable menus
 import { motion } from "framer-motion"; // Framer Motion for animation
+import Logout from "../../portal/Logout";
+import { useAuth } from "../../../AuthProvider";
+import { useNavigate } from "react-router-dom";
 import logo from "../../..//images/itopslogoicon.png";
+import ConfirmLogoutModal from "../../Modal/ConfirmLogoutModal";
 
 // * React icons
 import { IoIosArrowBack } from "react-icons/io"; // Arrow icon for collapsing sidebar
@@ -21,12 +25,40 @@ const Sidebar = () => {
 
   // State to manage whether the sidebar is open or closed
   const [open, setOpen] = useState(isTabletMid ? false : true);
+  const [isModalOpen, setModalOpen] = useState(false); // State for controlling the logout modal
 
   // Ref to reference the sidebar element for DOM manipulation if needed
   const sidebarRef = useRef();
 
   // Hook to get the current location (pathname) for controlling sidebar visibility
   const { pathname } = useLocation();
+
+  const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  // Logout confirmation modal handlers
+  const handleLogoutClick = () => setModalOpen(true); // Show modal when clicked
+  const handleConfirmLogout = () => {
+    setModalOpen(false); // Close modal after confirmation
+    logout(); // Call logout function from context
+    navigate("/login"); // Redirect to login page
+  };
+  const handleCancelLogout = () => setModalOpen(false); // Close modal without logging out
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (isAuthenticated) {
+        logout();
+        navigate("/login"); // Redirect to login page
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [isAuthenticated, logout, navigate]);
 
   // Effect to handle sidebar open/close based on screen size (tablet or larger)
   useEffect(() => {
@@ -197,10 +229,19 @@ const Sidebar = () => {
                   <p>Rizalyn Quezon</p> {/* Account type */}
                   <small>Database Department</small> {/* Account price */}
                 </div>
-                <p className="text-white py-1.5 px-3 text-xs bg-[#572929] hover:bg-[#961919] rounded-xl cursor-pointer">
-                  Logout {/* Upgrade button */}
-                </p>
+                <div
+                  className="text-white py-1.5 px-3 text-xs bg-[#572929] hover:bg-[#961919] rounded-xl cursor-pointer"
+                  onClick={handleLogoutClick} // Click to open modal
+                >
+                  Logout
+                </div>
               </div>
+              {/* Logout confirmation modal */}
+              <ConfirmLogoutModal
+                isOpen={isModalOpen}
+                onClose={handleCancelLogout}
+                onConfirm={handleConfirmLogout}
+              />
             </div>
           )}
         </div>

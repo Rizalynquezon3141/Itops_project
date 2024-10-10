@@ -32,18 +32,36 @@ const Users = db.define(
       allowNull: true,
     },
     termsAccepted: {
-      type: DataTypes.BOOLEAN, // Boolean type to store true/false
-      allowNull: false, // Make sure it is not null
-      defaultValue: false, // Default value if not provided
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW, // Use DataTypes.NOW for better compatibility
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+      onUpdate: DataTypes.NOW, // Automatically update on record update
     },
   },
   {
     freezeTableName: true,
+    timestamps: true, // Enable automatic createdAt and updatedAt
   }
 );
 
+// Sync the model with the database
 (async () => {
-  await db.sync();
+  try {
+    await db.sync();
+    console.log("Database synchronized");
+  } catch (error) {
+    console.error("Error syncing database:", error);
+  }
 })();
 
 export default Users;

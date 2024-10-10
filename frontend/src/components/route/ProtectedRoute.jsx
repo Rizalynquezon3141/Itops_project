@@ -1,13 +1,43 @@
-import React from 'react'
+// ProtectedRoute.js
+import React from "react";
+import { Navigate } from "react-router-dom";
 
-function ProtectedRoute({ children }) {
-    const accessToken = sessionStorage.getItem("accessToken");
+// This component wraps around protected routes and checks if the user is authenticated
+const ProtectedRoute = ({ children }) => {
+  const accessToken = localStorage.getItem("accessToken");
 
-    if (!accessToken) {
-      return <Navigate to="/login" replace />;
-    }
-  
-    return children;
-  };
+  // If there's no access token, redirect to login page
+  if (!accessToken) {
+    return <Navigate to="/login" replace />;
+  }
 
-export default ProtectedRoute
+  // If authenticated, render the children components (protected routes)
+  return children;
+};
+
+export default ProtectedRoute;
+
+
+
+
+
+
+
+
+
+
+
+
+// src/ProtectedRoute.js
+{/*import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+
+const ProtectedRoute = ({ isAuthenticated }) => {
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <Outlet />;
+};
+
+export default ProtectedRoute;*/}
