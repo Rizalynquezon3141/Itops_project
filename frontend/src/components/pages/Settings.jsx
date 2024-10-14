@@ -1,5 +1,360 @@
+import { useEffect, useState } from "react";
+import Button from "@mui/material/Button"; // Import Material-UI's Button component
+
+function Settings() {
+  //Retrieve the values from localStorage
+  const [fullname, setFullname] = useState("");
+  const [designation, setDesignation] = useState("");
+  const [token, setToken] = useState(null); // Declare token as a state variable
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    // Retrieve the values from localStorage when the component mounts
+    const storedFullname = localStorage.getItem("fullname");
+    const storedDesignation = localStorage.getItem("designation");
+    const storedToken = localStorage.getItem("accessToken"); // Get the token
+
+    if (storedFullname) setFullname(storedFullname);
+    if (storedDesignation) setDesignation(storedDesignation);
+    if (storedToken) setToken(storedToken); // Set the token state
+  }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/users", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Use the state token
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            "Network response was not ok: " + response.statusText
+          );
+        }
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (token) {
+      // Ensure token is available before fetching
+      fetchUsers();
+    }
+  }, [token]); // Add token as a dependency
+
+  return (
+    <div>
+      <div className="text-neutral-400 flex px-8">
+        <h1 className="text-1xl font-bold mb-4 flex-1">Settings</h1>
+        <p className="text-sm">DBAdministration &gt; Settings</p>
+      </div>
+      <div className="flex flex-col lg:flex-row min-h-screen p-4 text-neutral-400">
+        <div className="bg-[#333333] p-6 mb-4 lg:mb-0 lg:mr-4 shadow-lg rounded-lg h-fit w-full lg:w-[610px] flex-none flex justify-center">
+          <div className=" mr-4 w-full">
+            <h1 className="text-2xl text-center font-bold mb-4">Profile</h1>
+            <div className="flex justify-center mb-4">
+              <img
+                src="https://openui.fly.dev/openui/100x100.svg?text=👤"
+                alt="User Avatar"
+                className="rounded-full border-2 border-primary w-24 h-24"
+              />
+            </div>
+            <div className="text-center ">
+              <h1 className="text-neutral-300">{fullname}</h1>
+              <p className="text-xs	">{designation}</p>
+            </div>
+            <div className="flex flex-col ">
+              <label className="block text-muted mt-6">Upload</label>
+              {/* Add w-full class to make the file input take the full width */}
+              <input
+                type="file"
+                className="border border-border rounded p-2 mt-2 flex-1"
+                //onChange={handleFileChange} // Add a change handler
+              />
+              <Button
+                type="submit" // Submit button
+                variant="contained" // Material-UI button variant
+                fullWidth // Full width button
+                sx={{
+                  marginTop: "7px",
+                  backgroundColor: "#7A2424", // Background color
+                  "&:hover": {
+                    backgroundColor: "#942626", // Hover background color
+                  },
+                }}
+              >
+                Upload Profile
+              </Button>
+
+              <div className="flex items-center mb-2">
+                <img
+                  aria-hidden="true"
+                  alt="email-icon"
+                  src="https://openui.fly.dev/openui/24x24.svg?text=✉️"
+                  className="mr-2"
+                />
+                <span className="text-primary">{users.email}</span>
+              </div>
+              <div className="flex items-center">
+                <img
+                  aria-hidden="true"
+                  alt="phone-icon"
+                  src="https://openui.fly.dev/openui/24x24.svg?text=📞"
+                  className="mr-2"
+                />
+                <span className="text-primary">{users.contact}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col flex-1 space-y-4">
+          <div className="bg-[#333333] p-6 shadow-lg h-96">
+            Top Right Content
+          </div>
+          <div className="bg-[#333333] p-6 shadow-lg h-96">
+            Bottom Right Content
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Settings;
+
+{
+  /*import React from "react";
+
+function Settings() {
+  return (
+    <div>
+      <div class="flex flex-col lg:flex-row min-h-screen p-4">
+        <div class="bg-[#333333] p-6 mb-4 lg:mb-0 lg:mr-4 shadow-lg rounded-lg w-[400px] sm:w-[px] md:w-[1000px] lg:w-[300px] h-96">
+          Left Side Content
+        </div>
+
+        <div class="flex flex-col flex-1 space-y-4">
+          <div class="bg-gray-400 flex-1 p-6">Top Right Content</div>
+
+          <div class="bg-gray-500 flex-1 p-6">Bottom Right Content</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Settings;*/
+}
+
+{
+  /*p-6 rounded-lg flex flex-row items-center justify-between min-h-[150px] <shadow-lg></shadow-lg>}
+
+{
+  /*import React from "react";
+
+// Shared Tailwind CSS classes
+const inputClasses = "border border-border rounded p-2 w-full";
+const buttonClasses =
+  "bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded p-2";
+const labelClasses = "block text-muted";
+
+function Settings() {
+  return (
+    <div>
+      <div className="p-6 bg-card text-foreground">
+        <h1 className="text-2xl font-bold mb-4">Profile</h1>
+        <div className="flex mb-6">
+          <div className="w-1/3 mr-4">
+            <div className="flex items-center mb-4">
+              <img
+                src="https://openui.fly.dev/openui/100x100.svg?text=👤"
+                alt="User Avatar"
+                className="rounded-full border-2 border-primary w-24 h-24"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className={labelClasses}>Upload</label>
+              <input type="file" className={`mt-2 ${inputClasses}`} />
+            </div>
+          </div>
+          <div className="w-2/3">
+            <h2 className="text-xl font-semibold mb-2">User Information</h2>
+            <div className="mb-4">
+              <label className={labelClasses}>Full Name</label>
+              <input
+                type="text"
+                value="Rizalyn Quezon"
+                className={inputClasses}
+              />
+            </div>
+            <div className="mb-4">
+              <label className={labelClasses}>Email Address</label>
+              <input
+                type="email"
+                value="rizalyn.quezon@gmail.com"
+                className={inputClasses}
+              />
+            </div>
+            <div className="mb-4">
+              <label className={labelClasses}>Contact Number</label>
+              <input type="text" value="09484724949" className={inputClasses} />
+            </div>
+            <button className={buttonClasses}>Save Changes</button>
+          </div>
+        </div>
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2">Change Your Password</h2>
+          <div className="mb-4">
+            <label className={labelClasses}>New Password</label>
+            <input type="password" className={inputClasses} />
+          </div>
+          <div className="mb-4">
+            <label className={labelClasses}>Confirm New Password</label>
+            <input type="password" className={inputClasses} />
+          </div>
+          <button className={buttonClasses}>Save Changes</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Settings;*/
+}
+
+{
+  /*import React, { useState } from 'react';
+import axios from 'axios';
+
+
 const Settings = () => {
-    return <h1 className='text-white'>Settings</h1>;
+  const [profileData, setProfileData] = useState({
+    name: '',
+    email: '',
+    phoneNumber: '',
+    password: '',
+    profilePicture: null,
+  });
+
+  const handleChange = (e) => {
+    setProfileData({
+      ...profileData,
+      [e.target.name]: e.target.value,
+    });
   };
+
+  const handleFileChange = (e) => {
+    setProfileData({
+      ...profileData,
+      profilePicture: e.target.files[0],
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append('name', profileData.name);
+    formData.append('email', profileData.email);
+    formData.append('phoneNumber', profileData.phoneNumber);
+    formData.append('password', profileData.password);
+    formData.append('profilePicture', profileData.profilePicture);
+
+    try {
+      const response = await axios.post('/api/updateProfile', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      alert(response.data.message);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to update profile');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 flex justify-center items-center">
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+        <h1 className="text-2xl font-semibold text-gray-800 mb-6">Edit Profile</h1>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <input
+              type="text"
+              name="name"
+              value={profileData.name}
+              onChange={handleChange}
+              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={profileData.email}
+              onChange={handleChange}
+              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+            <input
+              type="text"
+              name="phoneNumber"
+              value={profileData.phoneNumber}
+              onChange={handleChange}
+              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              name="password"
+              value={profileData.password}
+              onChange={handleChange}
+              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Profile Picture</label>
+            <input
+              type="file"
+              name="profilePicture"
+              onChange={handleFileChange}
+              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+            />
+          </div>
+
+          <div>
+            <button
+              type="submit"
+              className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition duration-200"
+            >
+              Update Profile
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );  };
   
-  export default Settings;
+  export default Settings;*/
+}

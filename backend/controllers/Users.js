@@ -1,6 +1,8 @@
 import Users from "../models/UserModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import path from "path";
 
 // Fetch Users
 export const getUsers = async (req, res) => {
@@ -14,6 +16,7 @@ export const getUsers = async (req, res) => {
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };
+
 
 // Register User
 export const Register = async (req, res) => {
@@ -87,9 +90,9 @@ export const Login = async (req, res) => {
     }
 
     // Generate access and refresh tokens
-    const { id: userId, fullname } = user; // Destructure user properties
+    const { id: userId, fullname, designation } = user; // Destructure user properties
     const accessToken = jwt.sign(
-      { userId, fullname, email: user.email },
+      { userId, fullname, email: user.email, designation },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "15m" } // Token expires in 15 minutes
     );
@@ -112,17 +115,20 @@ export const Login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 
-    // Respond with access token and user ID
+    // Respond with access token, user ID, fullname, and designation
     res.status(200).json({
       msg: "Login Successful",
       accessToken,
       userId,
+      fullname,
+      designation,
     });
   } catch (error) {
     console.error("Error during login:", error.message || error); // Log the error message
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };
+
 
 // Logout User
 export const Logout = async (req, res) => {
@@ -159,8 +165,60 @@ export const Logout = async (req, res) => {
 };
 
 
+
+
+
+
+
+/*
+// Update user data
+app.put('/users/:id', (req, res) => {
+  const userId = req.params.id;
+  const { fullname, email, contact, password, designation } = req.body;
+
+  const query = `UPDATE users SET fullname = ?, email = ?, contact = ?, password = ?, designation = ? WHERE id = ?`; // Update your actual fields
+  db.query(query, [fullname, email, contact, password, designation, userId], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ message: 'User updated successfully', results });
+  });
+});*/
+
+
+
+
+// Fetch the fullname and designation of the logged-in user
+/*export const getUserById = async (req, res) => {
+  // Verify the token and extract the user ID
+  const token = req.headers['authorization']?.split(' ')[1]; // Get the token from headers
+  if (!token) {
+    return res.status(401).json({ msg: "No token provided, authorization denied." });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token
+    const userId = decoded.userId; // Extract user ID from token payload
+
+    const user = await Users.findOne({
+      where: { id: userId }, // Use the user ID from the token
+      attributes: ["fullname", "designation"], // Specify the attributes to return
+    });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" }); // Handle case where user does not exist
+    }
+
+    res.status(200).json(user); // Return the user data with a 200 status
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ msg: "Internal Server Error" }); // Handle any server error
+  }
+};
 // Login User
 {
+
+  
   /*export const Login = async(req, res) => {
   try {
       const user = await Users.findAll({
@@ -198,7 +256,7 @@ export const Logout = async (req, res) => {
       res.status(404).json({ msg: "Email not found" });
   }
 }*/
-}
+
 
 // Logout User
 {

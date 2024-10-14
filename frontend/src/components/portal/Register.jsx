@@ -130,6 +130,24 @@ function Register() {
     });
   };
 
+  // Function to validate password strength
+  const validatePassword = (password) => {
+    const errors = [];
+    if (password.length < 8) {
+      errors.push("Password must be at least 8 characters.");
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push("Password must contain at least one uppercase letter.");
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.push("Password must contain at least one number.");
+    }
+    if (!/[!@#$%^&*]/.test(password)) {
+      errors.push("Password must contain at least one special character.");
+    }
+    return errors;
+  };
+
   // Validate inputs
   const validate = () => {
     let tempErrors = {};
@@ -138,9 +156,16 @@ function Register() {
     if (!formData.email) tempErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
       tempErrors.email = "Email is not valid";
-    if (!formData.password) tempErrors.password = "Password is required";
+
+    // Validate password
+    const passwordErrors = validatePassword(formData.password);
+    if (passwordErrors.length > 0) {
+      tempErrors.password = passwordErrors.join(" ");
+    }
+
     if (formData.password !== formData.confirmPassword)
       tempErrors.confirmPassword = "Passwords do not match";
+
     if (!formData.termsAccepted)
       tempErrors.termsAccepted = "You must accept the Terms and Conditions";
 
@@ -168,6 +193,7 @@ function Register() {
       }
     }
   };
+
   return (
     <>
       <section className="flex flex-col md:flex-row h-screen">
@@ -464,6 +490,7 @@ function Register() {
 
 export default Register;
 
+//Commented Past code
 {
   /*import React, { useState } from "react";
 import axios from "axios";

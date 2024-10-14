@@ -114,10 +114,12 @@ const Login = () => {
           formData
         );
 
-        const { accessToken, userId } = response.data; // Destructure accessToken and userId from response
+        const { accessToken, userId, fullname, designation } = response.data; // Destructure accessToken and userId from response
         if (accessToken) { // Check if accessToken exists
           localStorage.setItem("accessToken", accessToken); // Store accessToken in localStorage
           localStorage.setItem("userId", userId); // Store userId in localStorage
+          localStorage.setItem("fullname", fullname); // Store userId in localStorage
+          localStorage.setItem("designation", designation); // Store userId in localStorage
           navigate("/dashboard"); // Redirect to the dashboard
         }
       } catch (error) {

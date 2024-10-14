@@ -4,6 +4,31 @@ import Logout from "../portal/Logout";
 import { useAuth } from "../../AuthProvider";
 import { useNavigate } from "react-router-dom";
 
+// Modal Component
+const ConfirmLogoutModal = ({ isOpen, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white rounded p-5">
+        <h2 className="text-lg font-bold mb-4">Confirmation</h2>
+        <p>Do you want to log out?</p>
+        <div className="flex justify-end mt-4">
+          <button
+            className="mr-2 px-4 py-2 bg-red-500 text-white rounded"
+            onClick={onConfirm}
+          >
+            Yes, Log Out
+          </button>
+          <button className="px-4 py-2 bg-gray-300 rounded" onClick={onCancel}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const mysqlData = [
     { name: "KYC Image Customer AB Master B", home: 89, root: 11 },
@@ -19,16 +44,9 @@ const Dashboard = () => {
 
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+
+  // State to control the modal
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login"); // Redirect to login page
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false); // Close the modal without logging out
-  };
 
   useEffect(() => {
     const handlePopState = (event) => {
@@ -45,12 +63,21 @@ const Dashboard = () => {
     };
   }, [isAuthenticated]);
 
+  const handleLogoutConfirm = () => {
+    logout(); // Perform logout
+    navigate("/login"); // Redirect to login page
+  };
+
+  const handleLogoutCancel = () => {
+    setIsModalOpen(false); // Close the modal
+  };
+
   return (
     <div className="bg-[#252525] text-neutral-400 p-5">
       <h1 className="text-1xl font-bold mb-4">Dashboard</h1>
-      <div className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 mb-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 ">
         {/* MySQL Card */}
-        <div className="bg-[#333333] p-6 rounded-lg flex flex-row items-center justify-between min-h-[150px]">
+        <div className="bg-[#333333] p-6 rounded-lg flex flex-row items-center justify-between min-h-[150px] shadow-lg">
           <span>
             <h2 className="text-xl font-bold mb-2 text-neutral-400">MySQL</h2>
             <p className="text-4xl text-neutral-400">162</p>
@@ -59,16 +86,18 @@ const Dashboard = () => {
         </div>
 
         {/* SQL Server Card */}
-        <div className="bg-[#333333] p-6 rounded-lg flex flex-row items-center justify-between min-h-[150px]">
+        <div className="bg-[#333333] p-6 rounded-lg flex flex-row items-center justify-between min-h-[150px] shadow-lg">
           <span>
-            <h2 className="text-xl font-bold mb-2 text-neutral-400">SQL Server</h2>
+            <h2 className="text-xl font-bold mb-2 text-neutral-400">
+              SQL Server
+            </h2>
             <p className="text-4xl text-neutral-400">32</p>
           </span>
           <SiMicrosoftsqlserver className="text-red-600 text-6xl mb-4" />
         </div>
 
         {/* Oracle Card */}
-        <div className="bg-[#333333] p-6 rounded-lg flex flex-row items-center justify-between min-h-[150px]">
+        <div className="bg-[#333333] p-6 rounded-lg flex flex-row items-center justify-between min-h-[150px] shadow-lg">
           <span>
             <h2 className="text-xl font-bold mb-2 text-neutral-400">Oracle</h2>
             <p className="text-4xl text-neutral-400">97</p>
@@ -76,29 +105,6 @@ const Dashboard = () => {
           <SiOracle className="text-red-600 text-6xl mb-4" />
         </div>
       </div>
-
-      {/* Confirmation Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg">
-            <h2 className="text-lg font-bold mb-4">Are you sure you want to log out?</h2>
-            <div className="flex justify-end">
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white px-4 py-2 rounded mr-2"
-              >
-                Logout
-              </button>
-              <button
-                onClick={handleCancel}
-                className="bg-gray-300 text-black px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <div className="flex gap-8">
         <div className="w-1/2">
@@ -113,7 +119,10 @@ const Dashboard = () => {
             </thead>
             <tbody>
               {mysqlData.map((item, index) => (
-                <tr key={index} className={index % 2 === 0 ? "bg-[#333333]" : ""}>
+                <tr
+                  key={index}
+                  className={index % 2 === 0 ? "bg-[#333333]" : ""}
+                >
                   <td className="py-2 px-4">{item.name}</td>
                   <td className="py-2 px-4">
                     <div className="relative bg-red-500 h-2 rounded-full">
@@ -143,7 +152,10 @@ const Dashboard = () => {
             </thead>
             <tbody>
               {oracleData.map((item, index) => (
-                <tr key={index} className={index % 2 === 0 ? "bg-[#252525]" : ""}>
+                <tr
+                  key={index}
+                  className={index % 2 === 0 ? "bg-[#252525]" : ""}
+                >
                   <td className="py-2 px-4">{item.name}</td>
                   <td className="py-2 px-4">
                     <div className="relative bg-red-500 h-2 rounded-full">
@@ -160,6 +172,13 @@ const Dashboard = () => {
           </table>
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmLogoutModal
+        isOpen={isModalOpen}
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
+      />
     </div>
   );
 };

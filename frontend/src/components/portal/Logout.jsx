@@ -1,29 +1,24 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import React, { createContext, useContext, useState } from 'react';
 
-function Logout() {
-  const navigate = useNavigate();
+const AuthContext = createContext();
 
-  const handleLogout = async () => {
-    try {
-      // Make API call to logout user and clear the refresh token from the database
-      await axios.delete("http://localhost:5000/logout", {
-        withCredentials: true,
-      });
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('accessToken'));
 
-      // Remove the token from local storage
-      localStorage.removeItem("accessToken");
-
-      // Redirect to login page
-      navigate("/login"); // Adjust this to your login route
-    } catch (error) {
-      console.error("Logout error:", error);
-      // Optionally, handle the error (e.g., show a notification)
-    }
+  const logout = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('designation');
+    localStorage.removeItem('fullname');
+    localStorage.removeItem('userId');
+    setIsAuthenticated(false);
   };
 
-  return <button onClick={handleLogout} >Logout</button>;
-}
+  return (
+    <AuthContext.Provider value={{ isAuthenticated, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
-export default Logout;
+export const useAuth = () => useContext(AuthContext);
+
