@@ -1,53 +1,125 @@
 import { useEffect, useState } from "react";
+// MUI Components
+import TextField from "@mui/material/TextField"; // Import Material-UI's TextField component
 import Button from "@mui/material/Button"; // Import Material-UI's Button component
+import { styled } from "@mui/material/styles"; // Import styled utility from Material-UI
 
 function Settings() {
-  //Retrieve the values from localStorage
-  const [fullname, setFullname] = useState("");
-  const [designation, setDesignation] = useState("");
-  const [token, setToken] = useState(null); // Declare token as a state variable
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [user, setUser] = useState({
+    fullname: "",
+    email: "",
+    contact: "",
+    designation: "",
+  });
+
+  const [error, setError] = useState(null);
+
+  // Fetch current user data
+  const fetchCurrentUser = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/users", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+      });
+
+      if (response.status === 401) {
+        localStorage.clear(); 
+        window.location.href = "/login"; 
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+
+      const data = await response.json();
+      setUser(data); // Set user data
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   useEffect(() => {
-    // Retrieve the values from localStorage when the component mounts
-    const storedFullname = localStorage.getItem("fullname");
-    const storedDesignation = localStorage.getItem("designation");
-    const storedToken = localStorage.getItem("accessToken"); // Get the token
-
-    if (storedFullname) setFullname(storedFullname);
-    if (storedDesignation) setDesignation(storedDesignation);
-    if (storedToken) setToken(storedToken); // Set the token state
+    fetchCurrentUser();
   }, []);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/users", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Use the state token
-          },
-        });
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setUser((user) => ({
+      ...user,
+      [id]: value,
+    }));
+  };
 
-        if (!response.ok) {
-          throw new Error(
-            "Network response was not ok: " + response.statusText
-          );
-        }
-        const data = await response.json();
-        setUsers(data);
-      } catch (error) {
-        console.error(error);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5000/users", { // Your API endpoint to update user
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+        },
+        body: JSON.stringify(user), // Send the updated user data
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update user details");
       }
-    };
 
-    if (token) {
-      // Ensure token is available before fetching
-      fetchUsers();
+      const updatedUser = await response.json();
+      setUser(updatedUser); // Update local user state with the response data
+      setSuccessMessage("User details updated successfully!"); // Set success message
+    } catch (err) {
+      setError(err.message);
     }
-  }, [token]); // Add token as a dependency
+  };
+
+  // Styles for the input fields
+  const CustomTextField = styled(TextField)(({ theme }) => ({
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: "gray", // Border color for the input field
+      },
+      "&:hover fieldset": {
+        borderColor: "white", // Border color on hover
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "gray", // Border color when the input field is focused
+      },
+      backgroundColor: "transparent", // Make the input background transparent
+    },
+    "& .MuiInputLabel-root": {
+      color: "gray", // Label color
+      fontFamily: "'Poppins', sans-serif", // Set the font of the label
+    },
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "white", // Change label color when focused
+      fontFamily: "'Poppins', sans-serif", // Set the font of the focused label
+    },
+    "& .MuiOutlinedInput-input": {
+      color: "white", // Text color inside the input field
+      backgroundColor: "transparent", // Ensure input text background is transparent
+      fontFamily: "'Poppins', sans-serif", // Set the font for the input text
+      fontSize: "16px", // Adjust the font size for the input text
+    },
+    // Handle autofill background for Chrome, Safari, and other WebKit browsers
+    "& input:-webkit-autofill": {
+      WebkitBoxShadow: "0 0 0 1000px #333333 inset", // Inset shadow for autofilled input
+      WebkitTextFillColor: "white", // Text color inside autofilled inputs
+      transition: "background-color 5000s ease-in-out 0s", // Delay the background-color reset
+      fontFamily: "'Poppins', sans-serif", // Ensure autofilled text uses Poppins font
+      fontSize: "16px", // Ensure autofilled input text uses the same font size
+    },
+    "& input:-webkit-autofill:focus": {
+      WebkitBoxShadow: "0 0 0 1000px #333333 inset", // Ensure the same background when focused
+      WebkitTextFillColor: "white", // Keep text white when autofilled and focused
+      fontFamily: "'Poppins', sans-serif", // Ensure autofilled text uses Poppins font
+      fontSize: "16px", // Keep the font size for autofilled inputs
+    },
+  }));
 
   return (
     <div>
@@ -57,7 +129,7 @@ function Settings() {
       </div>
       <div className="flex flex-col lg:flex-row min-h-screen p-4 text-neutral-400">
         <div className="bg-[#333333] p-6 mb-4 lg:mb-0 lg:mr-4 shadow-lg rounded-lg h-fit w-full lg:w-[610px] flex-none flex justify-center">
-          <div className=" mr-4 w-full">
+          <div className="mr-4 w-full">
             <h1 className="text-2xl text-center font-bold mb-4">Profile</h1>
             <div className="flex justify-center mb-4">
               <img
@@ -66,17 +138,242 @@ function Settings() {
                 className="rounded-full border-2 border-primary w-24 h-24"
               />
             </div>
-            <div className="text-center ">
-              <h1 className="text-neutral-300">{fullname}</h1>
-              <p className="text-xs	">{designation}</p>
+            <div className="text-center">
+              <h1 className="text-neutral-300">{user.fullname}</h1>
+              <p className="text-xs">{user.designation}</p>
             </div>
-            <div className="flex flex-col ">
+            <div className="flex flex-col">
               <label className="block text-muted mt-6">Upload</label>
               {/* Add w-full class to make the file input take the full width */}
               <input
                 type="file"
                 className="border border-border rounded p-2 mt-2 flex-1"
-                //onChange={handleFileChange} // Add a change handler
+                // onChange={handleFileChange} // Add a change handler
+              />
+              <Button
+                type="submit" // Submit button
+                variant="contained" // Material-UI button variant
+                fullWidth // Full width button
+                sx={{
+                  marginTop: "7px",
+                  backgroundColor: "#252525", // Background color
+                  border: "1px solid #2F6A2A", // Red border with size 2px
+                  fontSize: "12px",
+                  transition:
+                    "background-color 0.3s ease, border-color 0.3s ease", // Smooth transition for background and border color
+                  "&:hover": {
+                    backgroundColor: "#5C7E59", // Hover background color
+                  },
+                }}
+              >
+                Upload Profile
+              </Button>
+
+              {user && (
+                <>
+                  <div className="flex items-center mb-2">
+                    <img
+                      aria-hidden="true"
+                      alt="email-icon"
+                      src="https://openui.fly.dev/openui/24x24.svg?text=✉️"
+                      className="mr-2"
+                    />
+                    <span className="text-primary">{user.email}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <img
+                      aria-hidden="true"
+                      alt="phone-icon"
+                      src="https://openui.fly.dev/openui/24x24.svg?text=📞"
+                      className="mr-2"
+                    />
+                    <span className="text-primary">{user.contact}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col flex-1 space-y-4">
+          <div className="bg-[#333333] p-6 shadow-lg h-96">
+            <div>
+              <h1>User Information</h1>
+            </div>
+            <div>
+              <form className="space-y-6" onSubmit={handleSubmit}>
+                <CustomTextField
+                  fullWidth
+                  id="fullname"
+                  label="Full Name*"
+                  value={user.fullname}
+                  onChange={handleChange}
+                />
+                <CustomTextField
+                  fullWidth
+                  id="email"
+                  label="Email Address*"
+                  value={user.email}
+                  onChange={handleChange}
+                />
+                <CustomTextField
+                  fullWidth
+                  id="contact"
+                  label="Contact Number*"
+                  value={user.contact}
+                  onChange={handleChange}
+                />
+
+                <Button
+                  type="submit" // Submit button
+                  variant="contained" // Material-UI button variant
+                  sx={{
+                    marginTop: "7px",
+                    backgroundColor: "#252525", // Background color
+                    border: "1px solid #2F6A2A", // Red border with size 2px
+                    width: "21%",
+                    fontSize: "12px",
+                    transition:
+                      "background-color 0.3s ease, border-color 0.3s ease", // Smooth transition for background and border color
+                    "&:hover": {
+                      backgroundColor: "#5C7E59", // Hover background color
+                    },
+                  }}
+                >
+                  Save Changes
+                </Button>
+              </form>
+            </div>
+          </div>
+          <div className="bg-[#333333] p-6 shadow-lg h-96">
+            <div>
+              <h1>Change Your Password</h1>
+            </div>
+            <div>
+              <p>New Password</p>
+              <p>Confirm New Password</p>
+            </div>
+            <Button
+              type="submit" // Submit button
+              variant="contained" // Material-UI button variant
+              sx={{
+                marginTop: "7px",
+                backgroundColor: "#252525", // Background color
+                border: "1px solid #2F6A2A", // Red border with size 2px
+                width: "21%",
+                fontSize: "12px",
+                transition:
+                  "background-color 0.3s ease, border-color 0.3s ease", // Smooth transition for background and border color
+                "&:hover": {
+                  backgroundColor: "#5C7E59", // Hover background color
+                },
+              }}
+            >
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default Settings;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{
+  /*import { useEffect, useState } from "react";
+import Button from "@mui/material/Button"; // Import Material-UI's Button component
+
+function Settings() {
+  // Retrieve the values from localStorage
+  const [fullname, setFullname] = useState("");
+  const [designation, setDesignation] = useState("");
+ const [user, setUser] = useState(null); // Change to store user object
+  //const [token, setToken] = useState(localStorage.getItem("accessToken"));
+
+  useEffect(() => {
+    // Retrieve the values from localStorage when the component mounts
+    const storedFullname = localStorage.getItem("fullname");
+   const storedDesignation = localStorage.getItem("designation");
+   // const storedToken = localStorage.getItem("accessToken"); // Get the token
+
+    if (storedFullname) setFullname(storedFullname);
+    if (storedDesignation) setDesignation(storedDesignation);
+    //if (storedToken) setToken(storedToken); // Set the token state
+  }, []);
+
+  /*useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/users", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // Include the JWT token in the request
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+
+        const data = await response.json();
+        setUser(data); // Set the user data
+      } catch (error) {
+        console.error("Error fetching current user:", error);
+      }
+    };
+
+    if (token) {
+      fetchCurrentUser();
+    }
+  }, [token]);
+
+
+  return (
+    <div>
+      <div className="text-neutral-400 flex px-8">
+        <h1 className="text-1xl font-bold mb-4 flex-1">Settings</h1>
+        <p className="text-sm">DBAdministration &gt; Settings</p>
+      </div>
+      <div className="flex flex-col lg:flex-row min-h-screen p-4 text-neutral-400">
+        <div className="bg-[#333333] p-6 mb-4 lg:mb-0 lg:mr-4 shadow-lg rounded-lg h-fit w-full lg:w-[610px] flex-none flex justify-center">
+          <div className="mr-4 w-full">
+            <h1 className="text-2xl text-center font-bold mb-4">Profile</h1>
+            <div className="flex justify-center mb-4">
+              <img
+                src="https://openui.fly.dev/openui/100x100.svg?text=👤"
+                alt="User Avatar"
+                className="rounded-full border-2 border-primary w-24 h-24"
+              />
+            </div>
+            <div className="text-center">
+              <h1 className="text-neutral-300">{fullname}</h1>
+              <p className="text-xs">{designation}</p>
+            </div>
+            <div className="flex flex-col">
+              <label className="block text-muted mt-6">Upload</label>
+              {/* Add w-full class to make the file input take the full width }
+              <input
+                type="file"
+                className="border border-border rounded p-2 mt-2 flex-1"
+                // onChange={handleFileChange} // Add a change handler
               />
               <Button
                 type="submit" // Submit button
@@ -93,24 +390,28 @@ function Settings() {
                 Upload Profile
               </Button>
 
-              <div className="flex items-center mb-2">
-                <img
-                  aria-hidden="true"
-                  alt="email-icon"
-                  src="https://openui.fly.dev/openui/24x24.svg?text=✉️"
-                  className="mr-2"
-                />
-                <span className="text-primary">{users.email}</span>
-              </div>
-              <div className="flex items-center">
-                <img
-                  aria-hidden="true"
-                  alt="phone-icon"
-                  src="https://openui.fly.dev/openui/24x24.svg?text=📞"
-                  className="mr-2"
-                />
-                <span className="text-primary">{users.contact}</span>
-              </div>
+              {user && (
+                <>
+                  <div className="flex items-center mb-2">
+                    <img
+                      aria-hidden="true"
+                      alt="email-icon"
+                      src="https://openui.fly.dev/openui/24x24.svg?text=✉️"
+                      className="mr-2"
+                    />
+                    <span className="text-primary"></span>
+                  </div>
+                  <div className="flex items-center">
+                    <img
+                      aria-hidden="true"
+                      alt="phone-icon"
+                      src="https://openui.fly.dev/openui/24x24.svg?text=📞"
+                      className="mr-2"
+                    />
+                    <span className="text-primary"></span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -129,6 +430,7 @@ function Settings() {
 }
 
 export default Settings;
+
 
 {
   /*import React from "react";

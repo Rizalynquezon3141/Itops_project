@@ -17,6 +17,61 @@ export const getUsers = async (req, res) => {
   }
 };
 
+// Fetch Current Logged-In User
+export const getCurrentUser = async (req, res) => {
+  try {
+    // Fetch the user ID from the token (set in `verifyToken.js`)
+    const userId = req.user.userId;
+
+    // Find the user by their ID in the database
+    const user = await Users.findOne({
+      where: { id: userId },
+      attributes: ["id", "fullname", "email", "contact", "designation"],
+    });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Return user data
+    res.json(user);
+  } catch (error) {
+    console.error("Error fetching current user:", error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};
+
+
+// Update User Details
+export const updateUserDetails = async (req, res) => {
+  const { fullname, contact, designation } = req.body; // Get updated data from request body
+  const userId = req.user.userId; // Get user ID from decoded JWT
+
+  try {
+    // Find the user in the database
+    const user = await Users.findOne({
+      where: { id: userId },
+      attributes: ["id", "fullname", "email", "contact", "designation"],
+    });
+
+    if (!user) {
+      return res.status(404).json({ msg: "User not found" });
+    }
+
+    // Update user details
+    user.fullname = fullname;
+    user.contact = contact;
+    user.designation = designation;
+    await user.save(); // Save updated user back to the database
+
+    // Return updated user data
+    res.json(user);
+  } catch (error) {
+    console.error("Error updating user details:", error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+};
+
 
 // Register User
 export const Register = async (req, res) => {
@@ -94,7 +149,7 @@ export const Login = async (req, res) => {
     const accessToken = jwt.sign(
       { userId, fullname, email: user.email, designation },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" } // Token expires in 15 minutes
+      { expiresIn: "4h" } // Token expires in 4 hours
     );
     const refreshToken = jwt.sign(
       { userId, fullname, email: user.email },
