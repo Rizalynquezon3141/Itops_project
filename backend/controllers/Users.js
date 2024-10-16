@@ -44,7 +44,7 @@ export const getCurrentUser = async (req, res) => {
 
 // Update User Details
 export const updateUserDetails = async (req, res) => {
-  const { fullname, contact, designation } = req.body; // Get updated data from request body
+  const { fullname, email, contact } = req.body; // Get updated data from request body
   const userId = req.user.userId; // Get user ID from decoded JWT
 
   try {
@@ -61,7 +61,7 @@ export const updateUserDetails = async (req, res) => {
     // Update user details
     user.fullname = fullname;
     user.contact = contact;
-    user.designation = designation;
+    user.email = email;
     await user.save(); // Save updated user back to the database
 
     // Return updated user data
@@ -176,7 +176,7 @@ export const Login = async (req, res) => {
       accessToken,
       userId,
       fullname,
-      designation,
+      designation
     });
   } catch (error) {
     console.error("Error during login:", error.message || error); // Log the error message

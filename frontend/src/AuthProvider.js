@@ -6,10 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('accessToken'));
 
   const logout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('designation');
-    localStorage.removeItem('fullname');
-    localStorage.removeItem('userId');
+    localStorage.clear();
     setIsAuthenticated(false);
   };
 

@@ -15,6 +15,7 @@ import Dailychecklist from "./components/pages/Dailychecklist";
 import Login from "../src/components/portal/Login";
 import Register from "./components/portal/Register";
 
+
 const App = () => {
   const [user, setUser] = useState(null);
 
@@ -36,6 +37,7 @@ const App = () => {
         <Route element={<PublicLayout />}>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
+
         </Route>
 
         {/* Routes that include RootLayout for pages with sidebar */}

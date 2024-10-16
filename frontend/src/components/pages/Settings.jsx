@@ -1,23 +1,46 @@
 import { useEffect, useState } from "react";
+
+import UploadProfileModal from "../Modal/UploadProfileModal";
 // MUI Components
 import TextField from "@mui/material/TextField"; // Import Material-UI's TextField component
 import Button from "@mui/material/Button"; // Import Material-UI's Button component
+import EmailIcon from "@mui/icons-material/Email";
+import SaveIcon from "@mui/icons-material/Save";
+import PhoneIcon from "@mui/icons-material/Phone";
+import { IconButton } from "@mui/material"; // Import IconButton from Material-UI
+import EditIcon from "@mui/icons-material/Edit"; // Import Edit icon
 import { styled } from "@mui/material/styles"; // Import styled utility from Material-UI
 
 function Settings() {
   const [user, setUser] = useState({
-    fullname: "",
+    fullname: localStorage.getItem("fullname") || "",
     email: "",
     contact: "",
-    designation: "",
+    designation: localStorage.getItem("designation") || "",
   });
-
   const [error, setError] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState(
+    "https://openui.fly.dev/openui/100x100.svg?text=👤"
+  );
+  const [originalImage, setOriginalImage] = useState(profileImage); // Keep track of the original image
+  //Retrieve the values from localStorage
+  const [fullname, setFullname] = useState("");
+  const [designation, setDesignation] = useState("");
+
+  useEffect(() => {
+    // Retrieve the values from localStorage when the component mounts
+    const storedFullname = localStorage.getItem("fullname");
+    const storedDesignation = localStorage.getItem("designation");
+
+    if (storedFullname) setFullname(storedFullname);
+    if (storedDesignation) setDesignation(storedDesignation);
+  }, []);
 
   // Fetch current user data
   const fetchCurrentUser = async () => {
     try {
-      const response = await fetch("http://localhost:5000/users", {
+      const response = await fetch("http://localhost:5000/me", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -25,8 +48,8 @@ function Settings() {
       });
 
       if (response.status === 401) {
-        localStorage.clear(); 
-        window.location.href = "/login"; 
+        localStorage.clear();
+        window.location.href = "/login";
         return;
       }
 
@@ -47,16 +70,18 @@ function Settings() {
 
   const handleChange = (e) => {
     const { id, value } = e.target;
-    setUser((user) => ({
-      ...user,
+    setUser((prevUser) => ({
+      ...prevUser,
       [id]: value,
     }));
-  };
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/users", { // Your API endpoint to update user
+      const response = await fetch("http://localhost:5000/update-user", {
+        // Your API endpoint to update user
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -103,7 +128,7 @@ function Settings() {
       color: "white", // Text color inside the input field
       backgroundColor: "transparent", // Ensure input text background is transparent
       fontFamily: "'Poppins', sans-serif", // Set the font for the input text
-      fontSize: "16px", // Adjust the font size for the input text
+      fontSize: "12px", // Adjust the font size for the input text
     },
     // Handle autofill background for Chrome, Safari, and other WebKit browsers
     "& input:-webkit-autofill": {
@@ -121,6 +146,24 @@ function Settings() {
     },
   }));
 
+  const toggleEdit = () => {
+    setIsEditing((prev) => !prev);
+  };
+
+  const handleImageUpload = (newImage) => {
+    setProfileImage(newImage); // Update the profile image state
+  };
+
+  const handleCancel = () => {
+    setProfileImage(originalImage); // Revert to the original image
+    setIsEditing(false); // Close the modal
+  };
+
+  const handleUploadConfirm = () => {
+    // You can add logic here to handle the upload action if needed
+    console.log("Profile picture uploaded!");
+    setIsEditing(false); // Close the modal after upload
+  };
   return (
     <div>
       <div className="text-neutral-400 flex px-8">
@@ -131,63 +174,66 @@ function Settings() {
         <div className="bg-[#333333] p-6 mb-4 lg:mb-0 lg:mr-4 shadow-lg rounded-lg h-fit w-full lg:w-[610px] flex-none flex justify-center">
           <div className="mr-4 w-full">
             <h1 className="text-2xl text-center font-bold mb-4">Profile</h1>
-            <div className="flex justify-center mb-4">
+            <div className="flex justify-center mb-4 relative">
               <img
-                src="https://openui.fly.dev/openui/100x100.svg?text=👤"
+                src={profileImage}
                 alt="User Avatar"
                 className="rounded-full border-2 border-primary w-24 h-24"
               />
-            </div>
-            <div className="text-center">
-              <h1 className="text-neutral-300">{user.fullname}</h1>
-              <p className="text-xs">{user.designation}</p>
-            </div>
-            <div className="flex flex-col">
-              <label className="block text-muted mt-6">Upload</label>
-              {/* Add w-full class to make the file input take the full width */}
-              <input
-                type="file"
-                className="border border-border rounded p-2 mt-2 flex-1"
-                // onChange={handleFileChange} // Add a change handler
-              />
-              <Button
-                type="submit" // Submit button
-                variant="contained" // Material-UI button variant
-                fullWidth // Full width button
+
+              <IconButton
+                onClick={toggleEdit}
                 sx={{
-                  marginTop: "7px",
-                  backgroundColor: "#252525", // Background color
-                  border: "1px solid #2F6A2A", // Red border with size 2px
-                  fontSize: "12px",
+                  position: "absolute", // equivalent to "absolute"
+                  bottom: 0, // equivalent to "bottom-0"
+                  right: "38%", // equivalent to "right-0"
+                  margin: 1, // equivalent to "m-1" (spacing)
+                  borderRadius: "50%", // equivalent to "rounded-full"
+                  backgroundColor: "#5C7E59", // Background color
+                  border: "1px solid #2F6A2A", // Green border
+                  boxShadow: 2, // equivalent to "shadow" (MUI's shadow values)
                   transition:
                     "background-color 0.3s ease, border-color 0.3s ease", // Smooth transition for background and border color
                   "&:hover": {
-                    backgroundColor: "#5C7E59", // Hover background color
+                    backgroundColor: "#252525", // Hover background color
                   },
                 }}
+                aria-label="edit"
               >
-                Upload Profile
-              </Button>
+                <EditIcon className="text-neutral-300 " />
+              </IconButton>
+            </div>
 
+            {/* Upload Profile Modal */}
+            <UploadProfileModal
+              isOpen={isEditing}
+              onClose={handleCancel} // Close the modal without saving
+              onConfirm={handleUploadConfirm}
+              handleFileChange={handleImageUpload}
+              originalImage={originalImage} // Pass originalImage as a prop
+            />
+            <div className="text-center">
+              <h1 className="text-neutral-300">{fullname}</h1>
+              <p className="text-xs">{designation}</p>
+            </div>
+            <div className="flex flex-col p-4 border border-neutral-500 rounded-md mt-5">
               {user && (
                 <>
-                  <div className="flex items-center mb-2">
-                    <img
-                      aria-hidden="true"
-                      alt="email-icon"
-                      src="https://openui.fly.dev/openui/24x24.svg?text=✉️"
-                      className="mr-2"
+                  <div className="flex items-center mb-2 justify-between p-3 border-b border-neutral-500">
+                    <EmailIcon
+                      sx={{
+                        fontSize: "20px",
+                      }}
                     />
-                    <span className="text-primary">{user.email}</span>
+                    <span className="text-primary text-sm">{user.email}</span>
                   </div>
-                  <div className="flex items-center">
-                    <img
-                      aria-hidden="true"
-                      alt="phone-icon"
-                      src="https://openui.fly.dev/openui/24x24.svg?text=📞"
-                      className="mr-2"
+                  <div className="flex items-center justify-between p-3">
+                    <PhoneIcon
+                      sx={{
+                        fontSize: "20px",
+                      }}
                     />
-                    <span className="text-primary">{user.contact}</span>
+                    <span className="text-primary text-sm">{user.contact}</span>
                   </div>
                 </>
               )}
@@ -196,8 +242,11 @@ function Settings() {
         </div>
 
         <div className="flex flex-col flex-1 space-y-4">
-          <div className="bg-[#333333] p-6 shadow-lg h-96">
-            <div>
+          <div className="bg-[#333333] p-6 shadow-lg h-fit rounded-lg">
+            <div
+              className="mb-10 border-b pb-8 "
+              style={{ borderColor: "#252525" }}
+            >
               <h1>User Information</h1>
             </div>
             <div>
@@ -227,12 +276,14 @@ function Settings() {
                 <Button
                   type="submit" // Submit button
                   variant="contained" // Material-UI button variant
+                  startIcon={<SaveIcon />}
                   sx={{
                     marginTop: "7px",
                     backgroundColor: "#252525", // Background color
-                    border: "1px solid #2F6A2A", // Red border with size 2px
-                    width: "21%",
-                    fontSize: "12px",
+                    border: "1px solid #2F6A2A", // Green border
+                    width: "200px", // Fixed width
+                    height: "40px", // Fixed height
+                    fontSize: "11px",
                     transition:
                       "background-color 0.3s ease, border-color 0.3s ease", // Smooth transition for background and border color
                     "&:hover": {
@@ -245,7 +296,7 @@ function Settings() {
               </form>
             </div>
           </div>
-          <div className="bg-[#333333] p-6 shadow-lg h-96">
+          <div className="bg-[#333333] p-6 shadow-lg h-fit rounded-lg">
             <div>
               <h1>Change Your Password</h1>
             </div>
@@ -256,12 +307,14 @@ function Settings() {
             <Button
               type="submit" // Submit button
               variant="contained" // Material-UI button variant
+              startIcon={<SaveIcon />}
               sx={{
                 marginTop: "7px",
                 backgroundColor: "#252525", // Background color
-                border: "1px solid #2F6A2A", // Red border with size 2px
-                width: "21%",
-                fontSize: "12px",
+                border: "1px solid #2F6A2A", // Green border
+                width: "200px", // Fixed width
+                height: "40px", // Fixed height
+                fontSize: "11px",
                 transition:
                   "background-color 0.3s ease, border-color 0.3s ease", // Smooth transition for background and border color
                 "&:hover": {
@@ -279,22 +332,6 @@ function Settings() {
 }
 
 export default Settings;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 {
   /*import { useEffect, useState } from "react";
