@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useRef } from "react";
 import SubMenu from "./SubMenu"; // SubMenu component for expandable menus
 import { motion } from "framer-motion"; // Framer Motion for animation
-import { useAuth } from "../../../AuthProvider";
+import { useAuth } from "../../portal/AuthProvider";
 import { useNavigate } from "react-router-dom";
-import logo from "../../..//images/itopslogoicon.png";
+import logo from "../../../images/itopslogoicon.png";
 import ConfirmLogoutModal from "../../Modal/ConfirmLogoutModal";
 import { IoIosArrowBack } from "react-icons/io"; // Arrow icon for collapsing sidebar
 import { SlSettings } from "react-icons/sl"; // Settings icon

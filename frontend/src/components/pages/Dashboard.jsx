@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SiMysql, SiMicrosoftsqlserver, SiOracle } from "react-icons/si"; // Specific icons for each DB
-import Logout from "../portal/Logout";
-import { useAuth } from "../../AuthProvider";
+import { useAuth } from "../portal/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 // Modal Component

@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import "./index.css";
-import { AuthProvider } from "./AuthProvider";
+import { AuthProvider } from "./components/portal/AuthProvider";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
@@ -14,16 +14,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </StrictMode>
   </BrowserRouter>
 );
-
-/*import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);*/

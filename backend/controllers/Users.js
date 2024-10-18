@@ -1,8 +1,6 @@
 import Users from "../models/UserModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import multer from "multer";
-import path from "path";
 
 // Fetch Users
 export const getUsers = async (req, res) => {
@@ -16,62 +14,6 @@ export const getUsers = async (req, res) => {
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };
-
-// Fetch Current Logged-In User
-export const getCurrentUser = async (req, res) => {
-  try {
-    // Fetch the user ID from the token (set in `verifyToken.js`)
-    const userId = req.user.userId;
-
-    // Find the user by their ID in the database
-    const user = await Users.findOne({
-      where: { id: userId },
-      attributes: ["id", "fullname", "email", "contact", "designation"],
-    });
-
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" });
-    }
-
-    // Return user data
-    res.json(user);
-  } catch (error) {
-    console.error("Error fetching current user:", error);
-    res.status(500).json({ msg: "Internal Server Error" });
-  }
-};
-
-
-// Update User Details
-export const updateUserDetails = async (req, res) => {
-  const { fullname, email, contact } = req.body; // Get updated data from request body
-  const userId = req.user.userId; // Get user ID from decoded JWT
-
-  try {
-    // Find the user in the database
-    const user = await Users.findOne({
-      where: { id: userId },
-      attributes: ["id", "fullname", "email", "contact", "designation"],
-    });
-
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" });
-    }
-
-    // Update user details
-    user.fullname = fullname;
-    user.contact = contact;
-    user.email = email;
-    await user.save(); // Save updated user back to the database
-
-    // Return updated user data
-    res.json(user);
-  } catch (error) {
-    console.error("Error updating user details:", error);
-    res.status(500).json({ msg: "Internal Server Error" });
-  }
-};
-
 
 // Register User
 export const Register = async (req, res) => {
@@ -176,14 +118,13 @@ export const Login = async (req, res) => {
       accessToken,
       userId,
       fullname,
-      designation
+      designation,
     });
   } catch (error) {
     console.error("Error during login:", error.message || error); // Log the error message
     res.status(500).json({ msg: "Internal Server Error" });
   }
 };
-
 
 // Logout User
 export const Logout = async (req, res) => {
@@ -218,206 +159,3 @@ export const Logout = async (req, res) => {
     return res.status(500).json({ msg: "Internal Server Error" }); // Handle internal server errors
   }
 };
-
-
-
-
-
-
-
-/*
-// Update user data
-app.put('/users/:id', (req, res) => {
-  const userId = req.params.id;
-  const { fullname, email, contact, password, designation } = req.body;
-
-  const query = `UPDATE users SET fullname = ?, email = ?, contact = ?, password = ?, designation = ? WHERE id = ?`; // Update your actual fields
-  db.query(query, [fullname, email, contact, password, designation, userId], (err, results) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json({ message: 'User updated successfully', results });
-  });
-});*/
-
-
-
-
-// Fetch the fullname and designation of the logged-in user
-/*export const getUserById = async (req, res) => {
-  // Verify the token and extract the user ID
-  const token = req.headers['authorization']?.split(' ')[1]; // Get the token from headers
-  if (!token) {
-    return res.status(401).json({ msg: "No token provided, authorization denied." });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Verify the token
-    const userId = decoded.userId; // Extract user ID from token payload
-
-    const user = await Users.findOne({
-      where: { id: userId }, // Use the user ID from the token
-      attributes: ["fullname", "designation"], // Specify the attributes to return
-    });
-
-    if (!user) {
-      return res.status(404).json({ msg: "User not found" }); // Handle case where user does not exist
-    }
-
-    res.status(200).json(user); // Return the user data with a 200 status
-  } catch (error) {
-    console.error("Error fetching user:", error);
-    res.status(500).json({ msg: "Internal Server Error" }); // Handle any server error
-  }
-};
-// Login User
-{
-
-  
-  /*export const Login = async(req, res) => {
-  try {
-      const user = await Users.findAll({
-          where: { email: req.body.email }
-      });
-
-      if (user.length === 0) {
-          return res.status(404).json({ msg: "Email not found" });
-      }
-
-      const match = await bcrypt.compare(req.body.password, user[0].password);
-      if (!match) return res.status(400).json({ msg: "Wrong Password" });
-
-      const userId = user[0].id;
-      const name = user[0].name;
-      const email = user[0].email;
-      const accessToken = jwt.sign({ userId, name, email }, process.env.ACCESS_TOKEN_SECRET, {
-          expiresIn: '15s'
-      });
-      const refreshToken = jwt.sign({ userId, name, email }, process.env.REFRESH_TOKEN_SECRET, {
-          expiresIn: '1d'
-      });
-
-      await Users.update({ refresh_token: refreshToken }, {
-          where: { id: userId }
-      });
-
-      res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          maxAge: 24 * 60 * 60 * 1000 // 1 day
-      });
-
-      res.json({ accessToken });
-  } catch (error) {
-      res.status(404).json({ msg: "Email not found" });
-  }
-}*/
-
-
-// Logout User
-{
-  /*export const Logout = async (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.sendStatus(204);
-
-  const user = await Users.findAll({
-    where: { refresh_token: refreshToken },
-  });
-
-  if (!user[0]) return res.sendStatus(204);
-
-  const userId = user[0].id;
-  await Users.update(
-    { refresh_token: null },
-    {
-      where: { id: userId },
-    }
-  );
-
-  res.clearCookie("refreshToken");
-  return res.sendStatus(200);
-};*/
-}
-
-/*import Users from "../models/UserModel.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
- 
-export const getUsers = async(req, res) => {
-    try {
-        const users = await Users.findAll({
-            attributes:['id','name','email']
-        });
-        res.json(users);
-    } catch (error) {
-        console.log(error);
-    }
-}
- 
-export const Register = async(req, res) => {
-    const { name, email, password, confPassword } = req.body;
-    if(password !== confPassword) return res.status(400).json({msg: "Password and Confirm Password do not match"});
-    const salt = await bcrypt.genSalt();
-    const hashPassword = await bcrypt.hash(password, salt);
-    try {
-        await Users.create({
-            name: name,
-            email: email,
-            password: hashPassword
-        });
-        res.json({msg: "Registration Successful"});
-    } catch (error) {
-        console.log(error);
-    }
-}
- 
-export const Login = async(req, res) => {
-    try {
-        const user = await Users.findAll({
-            where:{
-                email: req.body.email
-            }
-        });
-        const match = await bcrypt.compare(req.body.password, user[0].password);
-        if(!match) return res.status(400).json({msg: "Wrong Password"});
-        const userId = user[0].id;
-        const name = user[0].name;
-        const email = user[0].email;
-        const accessToken = jwt.sign({userId, name, email}, process.env.ACCESS_TOKEN_SECRET,{
-            expiresIn: '15s'
-        });
-        const refreshToken = jwt.sign({userId, name, email}, process.env.REFRESH_TOKEN_SECRET,{
-            expiresIn: '1d'
-        });
-        await Users.update({refresh_token: refreshToken},{
-            where:{
-                id: userId
-            }
-        });
-        res.cookie('refreshToken', refreshToken,{
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000
-        });
-        res.json({ accessToken });
-    } catch (error) {
-        res.status(404).json({msg:"Email not found"});
-    }
-}
- 
-export const Logout = async(req, res) => {
-    const refreshToken = req.cookies.refreshToken;
-    if(!refreshToken) return res.sendStatus(204);
-    const user = await Users.findAll({
-        where:{
-            refresh_token: refreshToken
-        }
-    });
-    if(!user[0]) return res.sendStatus(204);
-    const userId = user[0].id;
-    await Users.update({refresh_token: null},{
-        where:{
-            id: userId
-        }
-    });
-    res.clearCookie('refreshToken');
-    return res.sendStatus(200);
-}*/

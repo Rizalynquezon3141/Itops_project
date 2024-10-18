@@ -198,7 +198,7 @@ function Register() {
     <>
       <section className="flex flex-col md:flex-row h-screen">
         <div
-          className="md:w-1/2 w-full bg-cover bg-center bg-no-repeat"
+          className="hidden md:block md:w-1/2 w-full bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${Logo})` }}
         />
         <div className="md:w-1/2 w-full bg-[#222426] flex items-center justify-center py-8 md:py-0">
