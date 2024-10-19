@@ -102,7 +102,8 @@ const CustomFormControl = styled(FormControl)({
 function Register() {
   // State for form fields
   const [formData, setFormData] = useState({
-    fullname: "",
+    firstname: "",
+    lastname: "",
     email: "",
     contact: "",
     password: "",
@@ -152,7 +153,8 @@ function Register() {
   const validate = () => {
     let tempErrors = {};
 
-    if (!formData.fullname) tempErrors.fullname = "Full Name is required";
+    if (!formData.firstname) tempErrors.firstname = "First Name is required";
+    if (!formData.lastname) tempErrors.lastname = "Last Name is required";
     if (!formData.email) tempErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
       tempErrors.email = "Email is not valid";
@@ -219,12 +221,22 @@ function Register() {
             <form className="space-y-6" onSubmit={handleSubmit}>
               <CustomTextField
                 fullWidth
-                id="fullname"
-                label="Full Name*"
-                value={formData.fullname}
+                id="firstname"
+                label="First Name*"
+                value={formData.firstname}
                 onChange={handleChange}
-                error={!!errors.fullname}
-                helperText={errors.fullname}
+                error={!!errors.firstname}
+                helperText={errors.firstname}
+              />
+
+              <CustomTextField
+                fullWidth
+                id="lastname"
+                label="Last Name*"
+                value={formData.lastname}
+                onChange={handleChange}
+                error={!!errors.lastname}
+                helperText={errors.lastname}
               />
 
               <CustomTextField

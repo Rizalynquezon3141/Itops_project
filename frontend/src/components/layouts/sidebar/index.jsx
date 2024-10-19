@@ -23,16 +23,19 @@ const Sidebar = () => {
   });
   let isMobile = useMediaQuery({ query: "(max-width: 768px)" });
 
-  //Retrieve the values from localStorage
-  const [fullname, setFullname] = useState("");
+  const [fullName, setFullName] = useState("");
   const [designation, setDesignation] = useState("");
 
   useEffect(() => {
-    // Retrieve the values from localStorage when the component mounts
-    const storedFullname = localStorage.getItem("fullname");
+    // Retrieve the firstname and lastname from local storage
+    const firstname = localStorage.getItem("firstname");
+    const lastname = localStorage.getItem("lastname");
     const storedDesignation = localStorage.getItem("designation");
 
-    if (storedFullname) setFullname(storedFullname);
+    // Concatenate firstname and lastname
+    if (firstname && lastname) {
+      setFullName(`${firstname} ${lastname}`);
+    }
     if (storedDesignation) setDesignation(storedDesignation);
   }, []);
 
@@ -208,7 +211,7 @@ const Sidebar = () => {
             <div className="flex-1 text-sm z-50 max-h-48 my-auto whitespace-pre w-full font-medium">
               <div className="flex border-y border-slate-300 p-4 items-center justify-between">
                 <div className="text-white">
-                  <p>{fullname}</p>
+                  <p>{fullName}</p>
                   <small>{designation}</small>
                 </div>
                 <div

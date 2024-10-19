@@ -6,7 +6,17 @@ const { DataTypes } = Sequelize;
 const Users = db.define(
   "users",
   {
-    fullname: {
+    id: {
+      type: DataTypes.INTEGER.UNSIGNED, // Unsigned integer for the ID
+      autoIncrement: true, // Auto-incrementing ID
+      primaryKey: true, // Set as the primary key
+      allowNull: false, // Cannot be null
+    },
+    firstname: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    lastname: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -27,6 +37,13 @@ const Users = db.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    // Virtual field for full name
+    fullName: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return `${this.firstname} ${this.lastname}`;
+      },
+    },
     refresh_token: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -36,32 +53,42 @@ const Users = db.define(
       allowNull: false,
       defaultValue: false,
     },
+    status: {
+      type: DataTypes.ENUM("inactive", "active"), // ENUM field for status
+      allowNull: false, // Cannot be null
+      defaultValue: "active", // Default value is 'active'
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW, // Use DataTypes.NOW for better compatibility
+      defaultValue: DataTypes.NOW,
     },
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
-      onUpdate: DataTypes.NOW, // Automatically update on record update
+      onUpdate: DataTypes.NOW,
     },
   },
   {
     freezeTableName: true,
-    timestamps: true, // Enable automatic createdAt and updatedAt
+    timestamps: true,
   }
 );
 
 // Sync the model with the database
 (async () => {
   try {
-    await db.sync();
-    console.log("Database synchronized");
+    await db.sync({ alter: true }); // Use alter to modify the table with new column
+    console.log(
+      "Database synchronized with status column and ID as primary key"
+    );
   } catch (error) {
     console.error("Error syncing database:", error);
   }
 })();
 
 export default Users;
+
+
+

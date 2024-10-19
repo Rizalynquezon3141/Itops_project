@@ -91,10 +91,12 @@ const Login = () => {
     let tempErrors = {}; // Object to collect errors
 
     // Check if email is provided and valid
-    if (!formData.email) tempErrors.email = "Email is required"; // Error if email is empty
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) // Regex check for email format
+    if (!formData.email)
+      tempErrors.email = "Email is required"; // Error if email is empty
+    else if (!/\S+@\S+\.\S+/.test(formData.email))
+      // Regex check for email format
       tempErrors.email = "Email is not valid";
-      
+
     // Check if password is provided
     if (!formData.password) tempErrors.password = "Password is required"; // Error if password is empty
 
@@ -106,7 +108,8 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent default form submission behavior
 
-    if (validate()) { // Validate the form before submission
+    if (validate()) {
+      // Validate the form before submission
       try {
         // Make a POST request to the login endpoint with form data
         const response = await axios.post(
@@ -114,11 +117,13 @@ const Login = () => {
           formData
         );
 
-        const { accessToken, userId, fullname, designation} = response.data; // Destructure accessToken and userId from response
-        if (accessToken) { // Check if accessToken exists
+        const { accessToken, userId, firstname, lastname, designation } = response.data; // Destructure accessToken and userId from response
+        if (accessToken) {
+          // Check if accessToken exists
           localStorage.setItem("accessToken", accessToken); // Store accessToken in localStorage
           localStorage.setItem("userId", userId); // Store userId in localStorage
-          localStorage.setItem("fullname", fullname); // Store userId in localStorage
+          localStorage.setItem("firstname", firstname); // Store userId in localStorage
+          localStorage.setItem("lastname", lastname); // Store userId in localStorage
           localStorage.setItem("designation", designation); // Store userId in localStorage
           navigate("/dashboard"); // Redirect to the dashboard
         }
@@ -133,18 +138,27 @@ const Login = () => {
   };
 
   return (
-    <section className="flex flex-col md:flex-row h-screen"> {/* Full height section with flexbox */}
+    <section className="flex flex-col md:flex-row h-screen">
+      {" "}
+      {/* Full height section with flexbox */}
       <div
         className="md:w-1/2 w-full bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${Logo})` }} // Set background image to the logo
       />
-      <div className="md:w-1/2 w-full bg-[#222426] flex items-center justify-center py-8 md:py-0"> {/* Login form container */}
-        <div className="bg-[#333333] p-8 md:p-10 rounded-lg shadow-lg w-full max-w-md"> {/* Form card */}
-          <h1 className="text-2xl text-white mb-6 text-center"> {/* Heading */}
+      <div className="md:w-1/2 w-full bg-[#222426] flex items-center justify-center py-8 md:py-0">
+        {" "}
+        {/* Login form container */}
+        <div className="bg-[#333333] p-8 md:p-10 rounded-lg shadow-lg w-full max-w-md">
+          {" "}
+          {/* Form card */}
+          <h1 className="text-2xl text-white mb-6 text-center">
+            {" "}
+            {/* Heading */}
             Login to your account
           </h1>
-
-          <form className="space-y-6" onSubmit={handleSubmit}> {/* Form with vertical spacing */}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {" "}
+            {/* Form with vertical spacing */}
             <CustomTextField
               fullWidth
               id="email" // Unique identifier for the email input
@@ -154,7 +168,6 @@ const Login = () => {
               error={!!errors.email} // Show error state if there are errors
               helperText={errors.email} // Display error message
             />
-
             <CustomTextField
               fullWidth
               id="password" // Unique identifier for the password input
@@ -165,7 +178,6 @@ const Login = () => {
               error={!!errors.password} // Show error state if there are errors
               helperText={errors.password} // Display error message
             />
-
             <Button
               type="submit" // Submit button
               variant="contained" // Material-UI button variant
@@ -177,16 +189,23 @@ const Login = () => {
                 },
               }}
             >
-              Login 
+              Login
             </Button>
-            <div className="text-sm text-gray-400 mt-6 text-center"> {/* Registration prompt */}
+            <div className="text-sm text-gray-400 mt-6 text-center">
+              {" "}
+              {/* Registration prompt */}
               Don't have an account?{" "}
-              <Link to="/register" className="text-white hover:underline"> {/* Link to the registration page */}
+              <Link to="/register" className="text-white hover:underline">
+                {" "}
+                {/* Link to the registration page */}
                 Register here
               </Link>
             </div>
           </form>
-          {msg && <div className="text-red-500 text-center mt-4">{msg}</div>} {/* Display error or success message */}
+          {msg && (
+            <div className="text-red-500 text-center mt-4">{msg}</div>
+          )}{" "}
+          {/* Display error or success message */}
         </div>
       </div>
     </section>

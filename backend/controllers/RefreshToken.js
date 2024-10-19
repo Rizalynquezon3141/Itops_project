@@ -18,12 +18,13 @@ export const refreshToken = async (req, res) => {
       if (err) return res.sendStatus(403);
 
       const userId = user[0].id;
-      const fullname = user[0].fullname;
+      const firstname = user[0].firstname;
+      const lastname = user[0].firstname;
       const email = user[0].email;
 
       // Generate new access token
       const accessToken = jwt.sign(
-        { userId, fullname, email },
+        { userId, firstname, lastname, email },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "4h" } // Token expires in 4 hours
       );

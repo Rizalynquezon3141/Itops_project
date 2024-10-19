@@ -14,7 +14,7 @@ export const updatePassword = async (req, res) => {
         // Find the user in the database
         const user = await Users.findOne({
             where: { id: userId },
-            attributes: ["id", "fullname", "email", "contact", "designation", "password"], // Add any additional fields as needed
+            attributes: ["id", "firstname", "lastname", "email", "contact", "designation", "password"], // Add any additional fields as needed
         });
 
         if (!user) {

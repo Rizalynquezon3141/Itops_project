@@ -18,7 +18,8 @@ export const getUsers = async (req, res) => {
 // Register User
 export const Register = async (req, res) => {
   const {
-    fullname,
+    firstname,
+    lastname,
     email,
     contact,
     password,
@@ -52,7 +53,8 @@ export const Register = async (req, res) => {
 
     // Create new user in the database
     await Users.create({
-      fullname,
+      firstname,
+      lastname,
       email,
       contact,
       password: hashPassword,
@@ -87,14 +89,14 @@ export const Login = async (req, res) => {
     }
 
     // Generate access and refresh tokens
-    const { id: userId, fullname, designation } = user; // Destructure user properties
+    const { id: userId, firstname, lastname, designation } = user; // Destructure user properties
     const accessToken = jwt.sign(
-      { userId, fullname, email: user.email, designation },
+      { userId, firstname, lastname, email: user.email, designation },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "4h" } // Token expires in 4 hours
     );
     const refreshToken = jwt.sign(
-      { userId, fullname, email: user.email },
+      { userId, firstname, lastname, email: user.email },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "1d" } // Refresh token expires in 1 day
     );
@@ -117,7 +119,8 @@ export const Login = async (req, res) => {
       msg: "Login Successful",
       accessToken,
       userId,
-      fullname,
+      firstname,
+      lastname,
       designation,
     });
   } catch (error) {
