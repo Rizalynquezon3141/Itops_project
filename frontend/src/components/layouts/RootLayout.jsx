@@ -9,7 +9,7 @@ function RootLayout() {
       <Sidebar className="flex-shrink-0" /> {/* Sidebar remains fixed */}
 
       {/* Main content area where child components will be rendered */}
-      <main className="flex-1 overflow-y-auto py-10">
+      <main className="flex-1 overflow-y-auto py-7">
         <Outlet />
         {/* 'children' represents the content passed into the RootLayout */}
       </main>

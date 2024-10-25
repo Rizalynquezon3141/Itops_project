@@ -16,7 +16,7 @@ const SubMenu = ({ data }) => {
         onClick={() => setSubMenuOpen(!subMenuOpen)} // Toggle sub-menu visibility on click
       >
         {/* Display icon of the parent menu */}
-        <data.icon size={23} className="min-w-max" />
+        <data.icon size={20} className="min-w-max" />
         {/* Display the parent menu name */}
         <p className="flex-1 capitalize">{data.name}</p>
         {/* Down arrow icon to indicate the sub-menu state, rotates when the sub-menu is open */}
