@@ -17,10 +17,11 @@ const router = express.Router();
 router.put("/update-user", verifyToken, updateUserDetails);
 router.put("/update-password", verifyToken, updatePassword);
 router.get("/me", verifyToken, getCurrentUser);
-router.post("/users", Register);
+router.post("/api-users", Register);
 router.post("/login", Login);
 router.get("/token", refreshToken);
 router.delete("/logout", Logout);
+
 
 // Get EOD entries by date
 router.get("/entries/:date", getEodEntriesByDate);
@@ -33,5 +34,6 @@ router.put("/entries/:id", updateEodEntry);
 
 // Delete an EOD entry
 router.delete("/entries/:id", deleteEodEntry);
+
 
 export default router;

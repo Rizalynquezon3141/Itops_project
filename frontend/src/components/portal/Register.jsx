@@ -158,7 +158,6 @@ function Register() {
     if (!formData.email) tempErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email))
       tempErrors.email = "Email is not valid";
-
     // Validate password
     const passwordErrors = validatePassword(formData.password);
     if (passwordErrors.length > 0) {
@@ -182,10 +181,11 @@ function Register() {
     if (validate()) {
       try {
         const response = await axios.post(
-          "http://localhost:5000/users",
+          "http://localhost:5000/api-users",
           formData
         );
         navigate("/login"); // Use navigate("/login") if that's the intended route
+        console.log(response)
       } catch (error) {
         if (error.response) {
           setMsg(error.response.data.msg); // Displaying error message
@@ -237,6 +237,7 @@ function Register() {
                 onChange={handleChange}
                 error={!!errors.lastname}
                 helperText={errors.lastname}
+
               />
 
               <CustomTextField

@@ -54,9 +54,15 @@ const Users = db.define(
       defaultValue: false,
     },
     status: {
+<<<<<<< Updated upstream
       type: DataTypes.ENUM("inactive", "active"), // ENUM field for status
       allowNull: false, // Cannot be null
       defaultValue: "active", // Default value is 'active'
+=======
+      type: DataTypes.ENUM('inactive', 'active'), // ENUM field for status
+      allowNull: false, // Cannot be null
+      defaultValue: 'active', // Default value is 'active'
+>>>>>>> Stashed changes
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -66,7 +72,7 @@ const Users = db.define(
     updatedAt: {
       type: DataTypes.DATE,
       allowNull: false,
-      defaultValue: DataTypes.NOW,
+      defaultValue: DataTypes.NOW
     },
   },
   {
@@ -74,8 +80,6 @@ const Users = db.define(
     timestamps: true,
   }
 );
-
-
 export default Users;
 
 

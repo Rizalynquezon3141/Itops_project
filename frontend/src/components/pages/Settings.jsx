@@ -217,7 +217,10 @@ function Settings() {
       setError(err.message);
     }
   };
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
   return (
     <div>
       <div className="text-neutral-400 flex px-8">
@@ -228,6 +231,7 @@ function Settings() {
         <div className="bg-[#333333] p-6 mb-4 lg:mb- lg:mr-4 shadow-lg rounded-lg h-fit w-full xl:w-[610px] flex-none flex justify-center ">
           <div className="mr-4 w-full">
             <h1 className="text-2xl text-center font-bold mb-4">Profile</h1>
+<<<<<<< Updated upstream
             <div className="flex justify-center mb-4 relative">
               <div
                 className="rounded-full border-2 border-primary w-24 h-24 flex justify-center items-center text-white"
@@ -236,11 +240,50 @@ function Settings() {
                   fontSize: "32px",
                   fontWeight: "bold",
                   fontFamily: "Poppins",
+=======
+            {/*<div className="flex justify-center mb-4 relative">
+              <img
+                src={profileImage}
+                alt="User Avatar"
+                className="rounded-full border-2 border-primary w-24 h-24"
+              />
+
+              <IconButton
+                onClick={toggleEdit}
+                sx={{
+                  position: "absolute", // equivalent to "absolute"
+                  bottom: 0, // equivalent to "bottom-0"
+                  right: "38%", // equivalent to "right-0"
+                  margin: 1, // equivalent to "m-1" (spacing)
+                  borderRadius: "50%", // equivalent to "rounded-full"
+                  backgroundColor: "#5C7E59", // Background color
+                  border: "1px solid #2F6A2A", // Green border
+                  boxShadow: 2, // equivalent to "shadow" (MUI's shadow values)
+                  transition:
+                    "background-color 0.3s ease, border-color 0.3s ease", // Smooth transition for background and border color
+                  "&:hover": {
+                    backgroundColor: "#252525", // Hover background color
+                  },
+>>>>>>> Stashed changes
                 }}
               >
                 {initials}
               </div>
             </div>
+<<<<<<< Updated upstream
+=======
+
+            {/* Upload Profile Modal 
+            <UploadProfileModal
+              isOpen={isEditing}
+              onClose={handleCancel} // Close the modal without saving
+              onConfirm={handleUploadConfirm}
+              handleFileChange={handleImageUpload}
+              originalImage={originalImage} // Pass originalImage as a prop
+            />*/}
+
+
+>>>>>>> Stashed changes
             <div className="text-center">
               <h1 className="text-neutral-300">{user.fullName}</h1>
               <p className="text-xs">{user.designation}</p>

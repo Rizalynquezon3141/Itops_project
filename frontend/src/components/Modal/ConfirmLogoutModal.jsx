@@ -14,6 +14,7 @@ const ConfirmLogoutModal = ({ isOpen, onClose, onConfirm }) => {
       open={isOpen}
       onClose={onClose}
       aria-labelledby="confirm-logout-title"
+  
     >
       {/* Title of the modal */}
       <DialogTitle
