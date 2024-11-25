@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 import db from "../config/Database.js";
-import Users from "./UserModel.js";  // Import the Users model to define association
+import Users from "./UserModel.js"; // Import the Users model to define the association
 
 const { DataTypes } = Sequelize;
 
@@ -17,17 +17,21 @@ const Eod = db.define(
       type: DataTypes.INTEGER.UNSIGNED, // Foreign key referencing 'users' table
       allowNull: false, // Cannot be null
       references: {
-        model: Users,  // Reference the 'users' model
-        key: 'id',     // Key in 'users' table to reference
+        model: Users, // Reference the 'users' model
+        key: "id", // Key in 'users' table to reference
       },
     },
-    shift: {
-      type: DataTypes.STRING(50), // varchar(50)
-      allowNull: false,
+    date: {
+      type: DataTypes.DATEONLY, // Stores only the date (YYYY-MM-DD format)
+      allowNull: false, // Cannot be null
+    },
+    time: {
+      type: DataTypes.STRING(20), // varchar(20) for storing time
+      allowNull: false, // Cannot be null
     },
     description: {
       type: DataTypes.TEXT, // Text field for description
-      allowNull: false,
+      allowNull: false, // Cannot be null
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -38,27 +42,15 @@ const Eod = db.define(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW, // Default to current timestamp
-      onUpdate: DataTypes.NOW,     // Update timestamp on row update
     },
   },
   {
-    freezeTableName: true,  // Prevent Sequelize from pluralizing the table name
-    timestamps: true,       // Automatically add createdAt and updatedAt
+    freezeTableName: true, // Prevent Sequelize from pluralizing the table name
+    timestamps: true, // Automatically add createdAt and updatedAt
   }
 );
 
-// Define the association with the Users model
-Users.hasMany(Eod, { foreignKey: 'user_id' }); // A user can have many EODs
-Eod.belongsTo(Users, { foreignKey: 'user_id' }); // Each EOD belongs to one user
-
-// Sync the model with the database
-(async () => {
-  try {
-    await db.sync({ alter: true }); // Synchronize the model (use alter for safe schema changes)
-    console.log("EOD table synchronized with the database");
-  } catch (error) {
-    console.error("Error syncing EOD table:", error);
-  }
-})();
+// Define association between Users and Eod
+Eod.belongsTo(Users, { foreignKey: "user_id", as: "user" });
 
 export default Eod;

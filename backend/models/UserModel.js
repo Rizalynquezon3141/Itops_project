@@ -67,7 +67,6 @@ const Users = db.define(
       type: DataTypes.DATE,
       allowNull: false,
       defaultValue: DataTypes.NOW,
-      onUpdate: DataTypes.NOW,
     },
   },
   {
@@ -76,19 +75,19 @@ const Users = db.define(
   }
 );
 
-// Sync the model with the database
-(async () => {
-  try {
-    await db.sync({ alter: true }); // Use alter to modify the table with new column
-    console.log(
-      "Database synchronized with status column and ID as primary key"
-    );
-  } catch (error) {
-    console.error("Error syncing database:", error);
-  }
-})();
 
 export default Users;
 
 
 
+// Sync the model with the database
+// (async () => {
+//   try {
+//     await db.sync({ alter: true }); // Use alter to modify the table with new column
+//     console.log(
+//       "Database synchronized with status column and ID as primary key"
+//     );
+//   } catch (error) {
+//     console.error("Error syncing database:", error);
+//   }
+// })();

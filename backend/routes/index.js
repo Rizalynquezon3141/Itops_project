@@ -5,6 +5,12 @@ import { updateUserDetails } from "../controllers/UpdateUserDetails.js";
 import { verifyToken } from "../middleware/VerifyToken.js";
 import { refreshToken } from "../controllers/RefreshToken.js";
 import { updatePassword } from "../controllers/UpdatePassword.js";
+import {
+  getEodEntriesByDate,
+  addEodEntry,
+  updateEodEntry,
+  deleteEodEntry,
+} from "../controllers/EodController.js";
 
 const router = express.Router();
 
@@ -15,5 +21,17 @@ router.post("/users", Register);
 router.post("/login", Login);
 router.get("/token", refreshToken);
 router.delete("/logout", Logout);
+
+// Get EOD entries by date
+router.get("/entries/:date", getEodEntriesByDate);
+
+// Add a new EOD entry
+router.post("/entries", addEodEntry);
+
+// Update an existing EOD entry
+router.put("/entries/:id", updateEodEntry);
+
+// Delete an EOD entry
+router.delete("/entries/:id", deleteEodEntry);
 
 export default router;
