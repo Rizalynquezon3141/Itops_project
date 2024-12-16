@@ -10,7 +10,7 @@ import {
   addEodEntry,
   updateEodEntry,
   deleteEodEntry,
-} from "../controllers/EodController.js";
+} from "../controllers/EodControllers.js";
 
 const router = express.Router();
 
