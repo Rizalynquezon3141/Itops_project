@@ -3,6 +3,10 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Calendar from "../MiniComponent/Calendar/calendar";
 import AddEod from "../Modal/AddEod";
+import { FaClipboardList } from "react-icons/fa";
+import MyEodEntries from "../MiniComponent/Calendar/MyEodEntries";
+import TeamEntries from "../MiniComponent/Calendar/TeamEntries";
+import ITOperationsEntries from "../MiniComponent/Calendar/ITOperationsEntries";
 
 function Eod() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -13,6 +17,7 @@ function Eod() {
   const [eodEntries, setEodEntries] = useState([]);
   const [selectedDayEntries, setSelectedDayEntries] = useState([]);
   const [editingEntryId, setEditingEntryId] = useState(null);
+  const [filter, setFilter] = useState("myEod"); // Filter state: "myEod", "team", "itOperations"
 
   const timeOptions = [
     "6:00 AM to 3:00 PM",
@@ -29,23 +34,32 @@ function Eod() {
   }, []);
 
   useEffect(() => {
-    if (selectedDate) fetchEodEntries(selectedDate);
+    fetchEodEntries(selectedDate);
   }, [selectedDate]);
 
   const fetchEodEntries = async (date) => {
     try {
-      const { data } = await axios.get(`http://localhost:5000/entries/${date}`);
-      setSelectedDayEntries(data); // Update state with fetched data
+      const formattedDate = formatDateForBackend(date);
+      const { data } = await axios.get(
+        `http://localhost:5000/entries/${formattedDate}?filter=${filter}`
+      );
+      setSelectedDayEntries(data);
     } catch (error) {
       console.error("Error fetching entries:", error);
-      setSelectedDayEntries([]); // Reset state if there's an error
+      setSelectedDayEntries([]);
     }
   };
-
+  
   const formatDateForBackend = (date) => {
+    // Ensure 'date' is a Date object
+    if (!(date instanceof Date)) {
+      date = new Date(date); // Convert to Date if it's not already
+    }
+  
     const timezoneOffset = date.getTimezoneOffset() * 60000;
     return new Date(date - timezoneOffset).toISOString().split("T")[0];
   };
+  
 
   const handleDateClick = async (day) => {
     const clickedDate = new Date(
@@ -188,70 +202,382 @@ function Eod() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-900">
-      <div className="w-1/3 p-5 flex justify-center items-center">
-        <Calendar
-          currentDate={currentDate}
-          onPrevMonth={() =>
-            setCurrentDate(
-              new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
-            )
-          }
-          onNextMonth={() =>
-            setCurrentDate(
-              new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
-            )
-          }
-          onDayClick={handleDateClick}
-        />
-      </div>
+    <>
+      <div className="text-xl font-bold mb-4 px-6 flex justify-between items-center pt-5">
+        {/* Header Section */}
+        <div className="text-neutral-500 flex gap-2 items-center">
+          <FaClipboardList className="text-gray-600 text-2xl" />
+          <p className="text-lg">End of Day Logs</p>
+        </div>
 
-      <div className="w-2/3 p-5">
-        <div className="bg-gray-800 p-5 rounded-lg shadow-md">
-          {selectedDayEntries.length > 0 ? (
-            <div className="bg-white shadow p-4 mb-4 rounded">
-              <h3 className="font-semibold">Entries for {selectedDate}:</h3>
-              {selectedDayEntries.map(({ eod_id, time, description, user }) => (
-                <div key={eod_id} className="mt-4">
-                  <h4 className="font-semibold">Time: {time}</h4>
-                  <p>{description}</p>
-                  <p>User: {user.fullname}</p>
-                  <button
-                    className="bg-blue-500 text-white px-4 py-2 mt-2 rounded mr-2"
-                    onClick={() => handleEdit({ eod_id, time, description })}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="bg-red-500 text-white px-4 py-2 mt-2 rounded"
-                    onClick={() => handleDelete(eod_id)}
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>No entries for this date.</p>
+        {/* Filter Buttons */}
+        <div className="flex gap-4">
+          <button
+            onClick={() => setFilter("myEod")}
+            className={`px-4 py-2 rounded-lg shadow transition-all ${
+              filter === "myEod"
+                ? "bg-blue-600 text-white"
+                : "bg-blue-500 text-gray-200"
+            }`}
+          >
+            My EOD
+          </button>
+          <button
+            onClick={() => setFilter("team")}
+            className={`px-4 py-2 rounded-lg shadow transition-all ${
+              filter === "team"
+                ? "bg-blue-600 text-white"
+                : "bg-blue-500 text-gray-200"
+            }`}
+          >
+            Team
+          </button>
+          <button
+            onClick={() => setFilter("itOperations")}
+            className={`px-4 py-2 rounded-lg shadow transition-all ${
+              filter === "itOperations"
+                ? "bg-blue-600 text-white"
+                : "bg-blue-500 text-gray-200"
+            }`}
+          >
+            IT Operations
+          </button>
+        </div>
+      </div>
+      {/* Main Content Section */}
+      <div className="flex min-h-screen bg-[#252525] px-6 py-4 gap-4">
+        {/* Filtered Entries */}
+        <div className="w-2/3 bg-[#333333] p-5 rounded-lg shadow-md text-white">
+          {filter === "myEod" && <MyEodEntries data={selectedDayEntries} />}
+          {filter === "team" && <TeamEntries data={selectedDayEntries} />}
+          {filter === "itOperations" && (
+            <ITOperationsEntries data={selectedDayEntries} />
           )}
         </div>
 
-        <AddEod
-          isOpen={modalOpen}
-          onClose={() => setModalOpen(false)}
-          timeOptions={timeOptions}
-          time={time}
-          entry={description}
-          onTimeChange={setTime}
-          onEntryChange={setDescription}
-          onSave={handleSave}
-        />
+        {/* Calendar */}
+        <div className="w-1/3 bg-[#333333] p-5 rounded-lg shadow-md flex justify-center items-start max-h-[500px] overflow-auto">
+          <Calendar
+            currentDate={currentDate}
+            onPrevMonth={() =>
+              setCurrentDate(
+                new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
+              )
+            }
+            onNextMonth={() =>
+              setCurrentDate(
+                new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
+              )
+            }
+            onDayClick={handleDateClick}
+          />
+        </div>
       </div>
-    </div>
+
+      {/* Modal for Adding EOD */}
+      <AddEod
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        timeOptions={timeOptions}
+        time={time}
+        entry={description}
+        onTimeChange={setTime}
+        onEntryChange={setDescription}
+        onSave={handleSave}
+      />
+    </>
   );
 }
 
 export default Eod;
+
+//Code that works well
+// import React, { useState, useEffect } from "react";
+// import axios from "axios";
+// import Swal from "sweetalert2";
+// import Calendar from "../MiniComponent/Calendar/calendar";
+// import AddEod from "../Modal/AddEod";
+// import { FaClipboardList } from "react-icons/fa";
+
+// function Eod() {
+//   const [currentDate, setCurrentDate] = useState(new Date());
+//   const [selectedDate, setSelectedDate] = useState(new Date());
+//   const [modalOpen, setModalOpen] = useState(false);
+//   const [time, setTime] = useState("");
+//   const [description, setDescription] = useState("");
+//   const [eodEntries, setEodEntries] = useState([]);
+//   const [selectedDayEntries, setSelectedDayEntries] = useState([]);
+//   const [editingEntryId, setEditingEntryId] = useState(null);
+
+//   const timeOptions = [
+//     "6:00 AM to 3:00 PM",
+//     "8:00 AM to 4:00 PM (Saturday)",
+//     "8:00 AM to 5:00 PM",
+//     "8:30 AM to 5:30 PM",
+//     "10:00 AM to 6:00 PM",
+//   ];
+
+//   useEffect(() => {
+//     const formattedDate = formatDateForBackend(new Date());
+//     setSelectedDate(formattedDate);
+//     fetchEodEntries(formattedDate);
+//   }, []);
+
+//   useEffect(() => {
+//     if (selectedDate) fetchEodEntries(selectedDate);
+//   }, [selectedDate]);
+
+//   const fetchEodEntries = async (date) => {
+//     try {
+//       const { data } = await axios.get(`http://localhost:5000/entries/${date}`);
+//       setSelectedDayEntries(data); // Update state with fetched data
+//     } catch (error) {
+//       console.error("Error fetching entries:", error);
+//       setSelectedDayEntries([]); // Reset state if there's an error
+//     }
+//   };
+
+//   const formatDateForBackend = (date) => {
+//     const timezoneOffset = date.getTimezoneOffset() * 60000;
+//     return new Date(date - timezoneOffset).toISOString().split("T")[0];
+//   };
+
+//   const handleDateClick = async (day) => {
+//     const clickedDate = new Date(
+//       currentDate.getFullYear(),
+//       currentDate.getMonth(),
+//       day
+//     );
+//     const formattedDate = formatDateForBackend(clickedDate);
+//     setSelectedDate(formattedDate);
+
+//     // Prevent creating entries for future dates
+//     if (clickedDate > new Date()) {
+//       Swal.fire({
+//         icon: "error",
+//         title: "Invalid Date",
+//         text: "You cannot add EOD entries for future dates.",
+//       });
+//       return;
+//     }
+
+//     // Fetch entries for the clicked date
+//     try {
+//       const { data } = await axios.get(
+//         `http://localhost:5000/entries/${formattedDate}`
+//       );
+
+//       if (data && data.length > 0) {
+//         Swal.fire({
+//           icon: "info",
+//           title: "Entries Exist",
+//           text: "This date already has EOD entries.",
+//         });
+//       } else {
+//         setModalOpen(true); // Open modal if no entries exist
+//       }
+//     } catch (error) {
+//       console.error("Error fetching entries:", error);
+//       Swal.fire({
+//         icon: "error",
+//         title: "Error",
+//         text: "Failed to fetch EOD entries.",
+//       });
+//     }
+//   };
+
+//   const resetModalState = () => {
+//     setTime("");
+//     setDescription("");
+//   };
+
+//   const handleSave = async () => {
+//     if (!time || !description) {
+//       Swal.fire({
+//         icon: "warning",
+//         title: "Incomplete Entry",
+//         text: "Please fill in both time and description.",
+//       });
+//       return;
+//     }
+
+//     const entryData = { user_id: 1, date: selectedDate, time, description };
+
+//     try {
+//       if (editingEntryId) {
+//         // Update existing entry
+//         const response = await axios.put(
+//           `http://localhost:5000/entries/${editingEntryId}`,
+//           entryData
+//         );
+//         if (response.status === 200) {
+//           Swal.fire("Updated!", "Entry updated successfully.", "success");
+//           setSelectedDayEntries((prevEntries) =>
+//             prevEntries.map((entry) =>
+//               entry.eod_id === editingEntryId
+//                 ? { ...entry, ...entryData }
+//                 : entry
+//             )
+//           );
+//         }
+//       } else {
+//         // Create new entry
+//         const response = await axios.post(
+//           "http://localhost:5000/entries",
+//           entryData
+//         );
+//         if (response.status === 201) {
+//           Swal.fire("Saved!", "New log saved successfully.", "success");
+//           fetchEodEntries(selectedDate);
+//         }
+//       }
+
+//       // Reset modal and editing state
+//       setModalOpen(false);
+//       resetModalState();
+//       setEditingEntryId(null);
+//     } catch (error) {
+//       console.error("Error saving entry:", error.response || error.message);
+//       const errorMessage =
+//         error.response?.data?.message ||
+//         "Failed to save entry. Please try again.";
+//       Swal.fire("Error!", errorMessage, "error");
+//     }
+//   };
+
+//   const handleEdit = (entry) => {
+//     Swal.fire({
+//       title: "Edit Entry",
+//       text: "You are about to edit this entry.",
+//       icon: "info",
+//       showCancelButton: true,
+//       confirmButtonText: "Proceed",
+//       cancelButtonText: "Cancel",
+//     }).then((result) => {
+//       if (result.isConfirmed) {
+//         setEditingEntryId(entry.eod_id);
+//         setTime(entry.time);
+//         setDescription(entry.description);
+//         setModalOpen(true);
+//       }
+//     });
+//   };
+
+//   const handleDelete = async (id) => {
+//     try {
+//       const response = await axios.delete(
+//         `http://localhost:5000/entries/${id}`
+//       );
+//       if (response.status === 200) {
+//         Swal.fire("Deleted!", "Entry deleted successfully.", "success");
+
+//         // Remove the deleted entry from the list
+//         setSelectedDayEntries((prevEntries) =>
+//           prevEntries.filter((entry) => entry.eod_id !== id)
+//         );
+//       }
+//     } catch (error) {
+//       console.error("Error deleting entry:", error);
+//       Swal.fire("Error!", "Failed to delete entry.", "error");
+//     }
+//   };
+
+//   return (
+//     <>
+//       <div className="text-xl font-bold mb-4 px-6 flex justify-between items-center pt-5">
+//         {/* Header Section */}
+//         <div className="text-neutral-500 flex gap-2 items-center">
+//           <FaClipboardList className="text-gray-600 text-2xl" />
+//           <p className="text-lg">End of Day Logs</p>
+//         </div>
+
+//         {/* Buttons Section */}
+//         <div className="flex gap-4">
+//           <button className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition-all">
+//             My Eod
+//           </button>
+//           <button className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition-all">
+//             Team
+//           </button>
+//           <button className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition-all">
+//             IT Operations
+//           </button>
+//         </div>
+//       </div>
+//       {/* Main Content Section */}
+//       <div className="flex min-h-screen bg-[#252525] px-6 py-4 gap-4">
+//         {/* EOD List */}
+//         <div className="w-2/3 bg-[#333333] p-5 rounded-lg shadow-md text-white">
+//           {selectedDayEntries.length > 0 ? (
+//             <div>
+//               <h3 className="text-lg font-semibold mb-4">
+//                 Entries for {selectedDate}:
+//               </h3>
+//               {selectedDayEntries.map(({ eod_id, time, description, user }) => (
+//                 <div
+//                   key={eod_id}
+//                   className="bg-gray-700 p-4 mb-4 rounded shadow-md"
+//                 >
+//                   <h4 className="font-semibold">Time: {time}</h4>
+//                   <p>{description}</p>
+//                   <p>User: {user.fullname}</p>
+//                   <div className="mt-2 flex gap-2">
+//                     <button
+//                       className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+//                       onClick={() => handleEdit({ eod_id, time, description })}
+//                     >
+//                       Edit
+//                     </button>
+//                     <button
+//                       className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+//                       onClick={() => handleDelete(eod_id)}
+//                     >
+//                       Delete
+//                     </button>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           ) : (
+//             <p className="text-gray-400">No entries for this date.</p>
+//           )}
+//         </div>
+
+//         {/* Calendar */}
+//         <div className="w-1/3 bg-[#333333] p-5 rounded-lg shadow-md flex justify-center items-start max-h-[500px] overflow-auto">
+//           <Calendar
+//             currentDate={currentDate}
+//             onPrevMonth={() =>
+//               setCurrentDate(
+//                 new Date(currentDate.getFullYear(), currentDate.getMonth() - 1)
+//               )
+//             }
+//             onNextMonth={() =>
+//               setCurrentDate(
+//                 new Date(currentDate.getFullYear(), currentDate.getMonth() + 1)
+//               )
+//             }
+//             onDayClick={handleDateClick}
+//           />
+//         </div>
+//       </div>
+
+//       {/* Modal for Adding EOD */}
+//       <AddEod
+//         isOpen={modalOpen}
+//         onClose={() => setModalOpen(false)}
+//         timeOptions={timeOptions}
+//         time={time}
+//         entry={description}
+//         onTimeChange={setTime}
+//         onEntryChange={setDescription}
+//         onSave={handleSave}
+//       />
+//     </>
+//   );
+// }
+
+// export default Eod;
 
 // Second code sunod sa code na mugana
 // import React, { useState, useEffect } from "react";

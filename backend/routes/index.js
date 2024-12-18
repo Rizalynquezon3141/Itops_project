@@ -22,9 +22,8 @@ router.post("/login", Login);
 router.get("/token", refreshToken);
 router.delete("/logout", Logout);
 
-
 // Get EOD entries by date
-router.get("/entries/:date", getEodEntriesByDate);
+router.get("/entries/:date/:filter", verifyToken, getEodEntriesByDate);
 
 // Add a new EOD entry
 router.post("/entries", addEodEntry);
@@ -34,6 +33,5 @@ router.put("/entries/:id", updateEodEntry);
 
 // Delete an EOD entry
 router.delete("/entries/:id", deleteEodEntry);
-
 
 export default router;
